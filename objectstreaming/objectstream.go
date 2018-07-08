@@ -24,23 +24,23 @@ func NewPutStream(server, object string) *PutStream {
 
 	reader, writer := io.Pipe()
 
-	c := make(chan error)
+	errChan := make(chan error)
 
 	go func() {
 		request, _ := http.NewRequest("PUT", "http://"+server+"/objects/"+object, reader)
 
 		client := http.Client{}
-		r, e := client.Do(request)
+		r, err := client.Do(request)
 
-		if e == nil && r.StatusCode != http.StatusOK {
-			e = fmt.Errorf("data server return http code %s", r.StatusCode)
+		if err == nil && r.StatusCode != http.StatusOK {
+			err = fmt.Errorf("data server return http code %s", r.StatusCode)
 		}
 
-		c <- e
+		errChan <- err
 
 	}()
 
-	return &PutStream{writer, c}
+	return &PutStream{writer, errChan}
 }
 
 func NewGetStream(server, object string) (*GetStream, error) {

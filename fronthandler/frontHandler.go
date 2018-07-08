@@ -9,12 +9,13 @@ import (
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 
-    m := r.Method
-    if m == http.MethodPut {
+    httpMethod := r.Method
+
+    if httpMethod == http.MethodPut {
         objects.GetObjectHandler().Put(w, r)
         return
     }
-    if m == http.MethodGet {
+    if httpMethod == http.MethodGet {
         objects.GetObjectHandler().Get(w, r)
         return
     }

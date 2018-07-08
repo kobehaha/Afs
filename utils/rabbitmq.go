@@ -13,17 +13,17 @@ type RabbitMq struct {
 
 func NewRabbitMq(s string) *RabbitMq {
 
-	conn, e := amqp.Dial(s)
-	if e != nil {
-		panic(e)
+	conn, errDial := amqp.Dial(s)
+	if errDial != nil {
+		panic(errDial)
 	}
 
-	ch, e := conn.Channel()
-	if e != nil {
-		panic(e)
+	ch, errChan := conn.Channel()
+	if errChan != nil {
+		panic(errChan)
 	}
 
-	q, e := ch.QueueDeclare(
+	q, errQueueDeclare := ch.QueueDeclare(
 		"",
 		false, // durable
 		true,  // delete when unused
@@ -31,8 +31,8 @@ func NewRabbitMq(s string) *RabbitMq {
 		false, // no-wait
 		nil,   // arguments
 	)
-	if e != nil {
-		panic(e)
+	if errQueueDeclare != nil {
+		panic(errQueueDeclare)
 	}
 
 	mq := new(RabbitMq)

@@ -9,9 +9,9 @@ import (
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 
-    m := r.Method
+    httpMethod := r.Method
 
-    if m != http.MethodGet {
+    if httpMethod != http.MethodGet {
         w.WriteHeader(http.StatusMethodNotAllowed)
         return
     }

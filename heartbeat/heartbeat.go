@@ -38,13 +38,13 @@ func NewHeartbeat() *Heartbeat {
 
 func (heartbeat *Heartbeat) StartHeartbeat() {
 
-	q := heartbeat.rabbitmq
+	rabbitMqM := heartbeat.rabbitmq
 
-	defer q.Close()
+	defer rabbitMqM.Close()
 
 	for {
 
-		q.Publish("apiServers", os.Getenv("LISTEN_ADDRESS"))
+		rabbitMqM.Publish("apiServers", os.Getenv("LISTEN_ADDRESS"))
 		time.Sleep(5 * time.Second)
 
 	}
@@ -53,24 +53,24 @@ func (heartbeat *Heartbeat) StartHeartbeat() {
 
 func (heartbeat *Heartbeat) ListenHeartbeat() {
 
-	q := heartbeat.rabbitmq
+	rabbitMqM := heartbeat.rabbitmq
 
-	defer q.Close()
+	defer rabbitMqM.Close()
 
-	q.Bind("apiServers")
+	rabbitMqM.Bind("apiServers")
 
-	c := q.Consume()
+	cosumer := rabbitMqM.Consume()
 
 	go heartbeat.removeExpiredDataServer()
 
-	for msg := range c {
+	for msg := range cosumer {
 
-		dataServer, e := strconv.Unquote(string(msg.Body))
+		dataServer, err := strconv.Unquote(string(msg.Body))
 
 		log.GetLogger().Info("hearbeat recive body %s", string(msg.Body))
 
-		if e != nil {
-			panic(e)
+		if err != nil {
+			panic(err)
 		}
 
 		heartbeat.mutex.Lock()

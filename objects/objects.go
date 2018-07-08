@@ -63,8 +63,8 @@ func (o *ObjectHandler) Get(w http.ResponseWriter, r *http.Request) {
 func (o *ObjectHandler) Put(w http.ResponseWriter, r *http.Request) {
 
 	object := strings.Split(r.URL.EscapedPath(), "/")[2]
-	c, e := o.storeObject(r.Body, object)
-	if e != nil {
+	c, err := o.storeObject(r.Body, object)
+	if err != nil {
 		log.GetLogger().Error("Store Object error And message is %s", e)
 	}
 
@@ -74,18 +74,18 @@ func (o *ObjectHandler) Put(w http.ResponseWriter, r *http.Request) {
 
 func (o *ObjectHandler) storeObject(r io.Reader, object string) (int, error) {
 
-	stream, e := o.putStreaming(object)
+	stream, err := o.putStreaming(object)
 
-	if e != nil {
-		return http.StatusServiceUnavailable, e
+	if err != nil {
+		return http.StatusServiceUnavailable, err
 	}
 
 	io.Copy(stream, r)
 
-	e = stream.Close()
+	err = stream.Close()
 
-	if e != nil {
-		return http.StatusInternalServerError, e
+	if err != nil {
+		return http.StatusInternalServerError, err
 
 	}
 	return http.StatusOK, nil
