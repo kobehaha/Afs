@@ -2,12 +2,12 @@ package objects
 
 import (
 	"fmt"
+    "io"
+    "net/http"
+    "strings"
 	"github.com/kobehaha/Afs/heartbeat"
 	"github.com/kobehaha/Afs/log"
 	"github.com/kobehaha/Afs/objectstreaming"
-	"io"
-	"net/http"
-	"strings"
 	"github.com/kobehaha/Afs/locate"
 )
 
@@ -24,7 +24,6 @@ func NewObjectHandler() *ObjectHandler{
     heartbeat := heartbeat.NewHeartbeat()
     locate := locate.NewLocate()
 
-    go heartbeat.StartHeartbeat()
     go heartbeat.ListenHeartbeat()
 
     return &ObjectHandler{heartbeat, locate}
@@ -77,6 +76,7 @@ func (o *ObjectHandler) storeObject(r io.Reader, object string) (int, error) {
 	stream, e := o.putStreaming(object)
 
 	if e != nil {
+	    log.GetLogger().Error(e)
 		return http.StatusServiceUnavailable, e
 	}
 
@@ -85,6 +85,7 @@ func (o *ObjectHandler) storeObject(r io.Reader, object string) (int, error) {
 	e = stream.Close()
 
 	if e != nil {
+	    log.GetLogger().Error(e)
 		return http.StatusInternalServerError, e
 
 	}
