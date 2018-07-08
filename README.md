@@ -1,10 +1,12 @@
-## Afs simple disribute file system 
+## Afs simple distribute file system 
 
-**en**
+## Overview
 
-```
+Afs aim to be a simple distribute file system,   Just like hdfs, Bfs,Gfs
 
-STORAGE_ROOT_DIR : storage root dir 
-LISTEN_ADDRESS : listen address
+## Feature
 
-```
+### 1 Basic Function
+- Support http clint 
+- Support dynamic scale out all service
+
