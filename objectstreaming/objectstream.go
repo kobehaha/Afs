@@ -7,17 +7,13 @@ import (
 )
 
 type PutStream struct {
-
 	writer *io.PipeWriter
 
 	c chan error
 }
 
-
 type GetStream struct {
-
 	reader io.Reader
-
 }
 
 func NewPutStream(server, object string) *PutStream {
@@ -52,10 +48,9 @@ func NewGetStream(server, object string) (*GetStream, error) {
 	url := "http://" + server + "/objects/" + object
 	return newGetStream(url)
 
-
 }
 
-func newGetStream(url string) (*GetStream , error ) {
+func newGetStream(url string) (*GetStream, error) {
 	r, e := http.Get(url)
 
 	if e != nil {
@@ -81,5 +76,3 @@ func (w *PutStream) Close() error {
 func (r *GetStream) Read(p []byte) (n int, err error) {
 	return r.reader.Read(p)
 }
-
-

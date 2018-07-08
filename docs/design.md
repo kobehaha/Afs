@@ -22,6 +22,11 @@ rabbit : message exchange for apiServer and dataServer and Service discovery
 docker run --hostname my-rabbit9 --name rabbit-mq9  -p 28090:15672 -p 15672:5672 -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=admin123 rabbitmq:3-management
 
 
+elasticsearch : save metadata 
+
+docker run -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch:5.0.2
+
+
 ```
 
 

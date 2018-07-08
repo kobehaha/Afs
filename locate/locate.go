@@ -7,13 +7,11 @@ import (
 	"time"
 )
 
-
 var locate *Locate
 
 type Locate struct {
 	rabbitmq *utils.RabbitMq
 }
-
 
 func NewLocate() *Locate {
 
@@ -27,7 +25,7 @@ func NewLocate() *Locate {
 
 }
 
-func (locate *Locate)StartLocate() {
+func (locate *Locate) StartLocate() {
 
 	q := locate.rabbitmq
 
@@ -45,8 +43,8 @@ func (locate *Locate)StartLocate() {
 		}
 
 		name := os.Getenv("STORAGE_ROOT" + "/objects/" + object)
-		if SLocate(name)  {
-			q.Send(msg.ReplyTo,os.Getenv("LISTEN_ADDRESS"))
+		if SLocate(name) {
+			q.Send(msg.ReplyTo, os.Getenv("LISTEN_ADDRESS"))
 		}
 
 	}
@@ -55,9 +53,8 @@ func (locate *Locate)StartLocate() {
 
 func SLocate(name string) bool {
 
-	 _, err := os.Stat(name)
-	 return !os.IsNotExist(err)
-
+	_, err := os.Stat(name)
+	return !os.IsNotExist(err)
 
 }
 
@@ -86,8 +83,7 @@ func (locate *Locate) Exist(name string) bool {
 	return locate.Locate(name) != ""
 }
 
-
-func GetLocate() *Locate{
+func GetLocate() *Locate {
 
 	if locate == nil {
 		locate = NewLocate()
@@ -95,4 +91,3 @@ func GetLocate() *Locate{
 	}
 	return locate
 }
-

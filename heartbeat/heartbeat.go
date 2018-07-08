@@ -1,17 +1,16 @@
 package heartbeat
 
 import (
+	"github.com/kobehaha/Afs/log"
 	"github.com/kobehaha/Afs/utils"
 	"math/rand"
 	"os"
 	"strconv"
 	"sync"
 	"time"
-    "github.com/kobehaha/Afs/log"
 )
 
 type Heartbeat struct {
-
 	heartbeat   string
 	dataServers map[string]time.Time
 	mutex       sync.Mutex
@@ -66,7 +65,6 @@ func (heartbeat *Heartbeat) ListenHeartbeat() {
 
 		dataServer, e := strconv.Unquote(string(msg.Body))
 
-
 		if e != nil {
 			panic(e)
 		}
@@ -112,7 +110,7 @@ func (heartbeat *Heartbeat) GetDataServers() []string {
 	log.GetLogger().Info("Get data servers %s", heartbeat.dataServers)
 	for s, _ := range heartbeat.dataServers {
 		ds = append(ds, s)
-    }
+	}
 
 	return ds
 

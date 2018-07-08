@@ -1,12 +1,12 @@
 package main
 
 import (
-	"net/http"
-	"os"
+	"github.com/kobehaha/Afs/datahandler"
 	"github.com/kobehaha/Afs/heartbeat"
 	"github.com/kobehaha/Afs/locate"
 	"github.com/kobehaha/Afs/log"
-	"github.com/kobehaha/Afs/datahandler"
+	"net/http"
+	"os"
 )
 
 func main() {
