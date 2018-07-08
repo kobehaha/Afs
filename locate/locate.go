@@ -27,6 +27,40 @@ func NewLocate() *Locate {
 
 }
 
+func (locate *Locate)StartLocate() {
+
+	q := locate.rabbitmq
+
+	defer q.Close()
+
+	q.Bind("dataServers")
+
+	c := q.Consume()
+
+	for msg := range c {
+		object, e := strconv.Unquote(string(msg.Body))
+
+		if e != nil {
+			panic(e)
+		}
+
+		name := os.Getenv("STORAGE_ROOT" + "/objects/" + object)
+		if SLocate(name)  {
+			q.Send(msg.ReplyTo,os.Getenv("LISTEN_ADDRESS"))
+		}
+
+	}
+
+}
+
+func SLocate(name string) bool {
+
+	 _, err := os.Stat(name)
+	 return !os.IsNotExist(err)
+
+
+}
+
 func (locate *Locate) Locate(name string) string {
 
 	q := locate.rabbitmq

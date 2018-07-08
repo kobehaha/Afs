@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
     "github.com/kobehaha/Afs/log"
-    "fmt"
 )
 
 type Heartbeat struct {
@@ -43,10 +42,8 @@ func (heartbeat *Heartbeat) StartHeartbeat() {
 	defer rabbitMqM.Close()
 
 	for {
-
 		rabbitMqM.Publish("apiServers", os.Getenv("LISTEN_ADDRESS"))
 		time.Sleep(5 * time.Second)
-
 	}
 
 }
@@ -67,7 +64,6 @@ func (heartbeat *Heartbeat) ListenHeartbeat() {
 
 		dataServer, err := strconv.Unquote(string(msg.Body))
 
-		log.GetLogger().Info("hearbeat recive body %s", string(msg.Body))
 
 		if err != nil {
 			panic(err)
@@ -79,7 +75,6 @@ func (heartbeat *Heartbeat) ListenHeartbeat() {
 
 		heartbeat.mutex.Unlock()
 
-		log.GetLogger().Info("current data servers %s", string(dataServer))
 	}
 
 }
@@ -87,6 +82,7 @@ func (heartbeat *Heartbeat) ListenHeartbeat() {
 func (heartbeat *Heartbeat) removeExpiredDataServer() {
 
 	for {
+
 		time.Sleep(5 * time.Second)
 
 		heartbeat.mutex.Lock()
@@ -94,8 +90,7 @@ func (heartbeat *Heartbeat) removeExpiredDataServer() {
 		for s, t := range heartbeat.dataServers {
 
 			if t.Add(10 * time.Second).Before(time.Now()) {
-				//delete(heartbeat.dataServers, s)
-				fmt.Println("??? delete %s",s )
+				delete(heartbeat.dataServers, s)
 			}
 		}
 
@@ -110,12 +105,12 @@ func (heartbeat *Heartbeat) GetDataServers() []string {
 
 	defer heartbeat.mutex.Unlock()
 
-	ds := make([]string, 1)
+	ds := make([]string, 0)
 
 	log.GetLogger().Info("Get data servers %s", heartbeat.dataServers)
 	for s, _ := range heartbeat.dataServers {
 		ds = append(ds, s)
-	}
+    }
 
 	return ds
 
@@ -125,13 +120,13 @@ func (hearbeat *Heartbeat) ChooseRandomDataServers() string {
 
 	ds := hearbeat.GetDataServers()
 
-	log.GetLogger().Info("get All data servers %s", ds)
-
 	n := len(ds)
 
 	if n == 0 {
 		return ""
 	}
 
-	return ds[rand.Intn(n)]
+	back := ds[rand.Intn(n)]
+
+	return back
 }
