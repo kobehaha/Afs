@@ -7,7 +7,9 @@ import (
 
 func GetHashFromHeader(h http.Header) string {
 
-	digest := h.Get("digest")
+
+	digest := h.Get("Digest")
+
 
 	if len(digest) < 9 {
 		return ""

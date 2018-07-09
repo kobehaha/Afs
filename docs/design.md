@@ -26,6 +26,31 @@ elasticsearch : save metadata
 
 docker run -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch:5.0.2
 
+http://127.0.0.1:9200/metadata xput -d'
+{
+	"mappings":{
+		"objects":{
+			"properties":{
+				"name":{
+					"type": "string",
+					"index" : "not_analyzed"
+				},
+				"version":{
+					 "type": "integer"
+				},
+				"size":{
+					"type": "integer"
+				},
+				"hash":{
+					"type": "string"
+				
+				}
+			}
+		}
+		
+	}
+}'
+
 
 ```
 
