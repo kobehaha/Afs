@@ -3,11 +3,11 @@ package apihandler
 import (
 	"encoding/json"
 	"github.com/kobehaha/Afs/locate"
+	"github.com/kobehaha/Afs/log"
 	"github.com/kobehaha/Afs/objects"
+	"github.com/kobehaha/Afs/utils"
 	"net/http"
 	"strings"
-	"github.com/kobehaha/Afs/utils"
-	"github.com/kobehaha/Afs/log"
 )
 
 func LocateHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +43,7 @@ func ObjectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if m == http.MethodDelete {
-		objects.GetObjectHandler().Del(w,r)
+		objects.GetObjectHandler().Del(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
@@ -68,13 +68,13 @@ func VersionHandler(w http.ResponseWriter, r *http.Request) {
 
 		metas, e := utils.NewEs().SerachAllVersions(name, from, size)
 		if e != nil {
-		    log.GetLogger().Error(e)
-		    w.WriteHeader(http.StatusInternalServerError)
-		    return
+			log.GetLogger().Error(e)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		for i := range metas {
-			b,_ := json.Marshal(metas[i])
+			b, _ := json.Marshal(metas[i])
 			w.Write(b)
 			w.Write([]byte("\n"))
 		}

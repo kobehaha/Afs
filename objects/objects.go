@@ -147,29 +147,34 @@ func (o *ObjectHandler) Del(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (o *ObjectHandler) storeObject(r io.Reader, object string) (int, error) {
+func (o *ObjectHandler) storeObject(r io.Reader, hash string, size int64) (int, error) {
 
-	stream, e := o.putStreaming(object)
+	if o.locate.Exist(url.PathEscape(hash)) {
+		return http.StatusOK, nil
+	}
+
+	stream, e := o.putStreaming(url.PathEscape(hash), size)
 
 	if e != nil {
 		log.GetLogger().Error(e)
 		return http.StatusServiceUnavailable, e
 	}
 
-	io.Copy(stream, r)
+	reader := io.TeeReader(r, stream)
 
-	e = stream.Close()
+	d := utils.CaculateHash(reader)
 
-	if e != nil {
-		log.GetLogger().Error(e)
-		return http.StatusInternalServerError, e
-
+	if d != hash {
+		stream.Commit(false)
+		return http.StatusBadRequest, fmt.Errorf("object has mismatch, calculated = %s, requested = %s", d, hash)
 	}
+
+	stream.Commit(true)
+
 	return http.StatusOK, nil
 
 }
-
-func (o *ObjectHandler) putStreaming(object string) (*objectstreaming.PutStream, error) {
+func (o *ObjectHandler) putStreaming(hash string, size int64) (*objectstreaming.TempPutStream, error) {
 
 	servers := o.heartbeat.ChooseRandomDataServers()
 
@@ -177,7 +182,7 @@ func (o *ObjectHandler) putStreaming(object string) (*objectstreaming.PutStream,
 		return nil, fmt.Errorf("can not find any dataServers")
 	}
 
-	return objectstreaming.NewPutStream(servers, object), nil
+	return objectstreaming.NewTempStream(servers, hash, size)
 
 }
 

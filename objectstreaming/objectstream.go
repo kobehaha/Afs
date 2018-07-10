@@ -3,7 +3,9 @@ package objectstreaming
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type PutStream struct {
@@ -14,6 +16,38 @@ type PutStream struct {
 
 type GetStream struct {
 	reader io.Reader
+}
+
+type TempPutStream struct {
+	Server string
+	Uuid   string
+}
+
+func NewTempStream(server, hash string, size int64) (*TempPutStream, error) {
+
+	request, e := http.NewRequest("POST", "http://"+server+"/temp/"+hash, nil)
+
+	if e != nil {
+		return nil, e
+	}
+
+	request.Header.Set("size", fmt.Sprintf("%d", size))
+
+	client := http.Client{}
+
+	response, e := client.Do(request)
+
+	if e != nil {
+		return nil, e
+	}
+
+	uuid, e := ioutil.ReadAll(response.Body)
+
+	if e != nil {
+		return nil, e
+	}
+
+	return &TempPutStream{server, string(uuid)}, nil
 }
 
 func NewPutStream(server, object string) *PutStream {
@@ -75,4 +109,43 @@ func (w *PutStream) Close() error {
 
 func (r *GetStream) Read(p []byte) (n int, err error) {
 	return r.reader.Read(p)
+}
+
+func (t *TempPutStream) Write(p []byte) (n int, err error) {
+
+	request, e := http.NewRequest("PATCH", "http://"+t.Server+"/temp/"+t.Uuid, strings.NewReader(string(p)))
+
+	if e != nil {
+		return 0, e
+	}
+
+	client := http.Client{}
+	r, e := client.Do(request)
+
+	if e != nil {
+		return 0, e
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf("data server return http code: %d", r.StatusCode)
+	}
+
+	return len(p), nil
+
+}
+
+func (t *TempPutStream) Commit(good bool) {
+
+	method := "DELETE"
+
+	if good {
+		method = "PUT"
+	}
+
+	request, _ := http.NewRequest(method, "http://"+t.Server+"/temp/"+t.Uuid, nil)
+
+	client := http.Client{}
+
+	client.Do(request)
+
 }
